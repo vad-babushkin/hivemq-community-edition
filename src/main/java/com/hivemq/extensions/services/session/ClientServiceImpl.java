@@ -117,12 +117,12 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public CompletableFuture<Boolean> disconnectClient(
             @NotNull final String clientId, final boolean preventWillMessage) {
-        Preconditions.checkNotNull(clientId, "A client id must never be null");
         if (pluginServiceRateLimitService.rateLimitExceeded()) {
             return CompletableFuture.failedFuture(PluginServiceRateLimitService.RATE_LIMIT_EXCEEDED_EXCEPTION);
         }
         return ListenableFutureConverter.toCompletable(
-                clientSessionPersistence.forceDisconnectClient(clientId, preventWillMessage, EXTENSION));
+                clientSessionPersistence.forceDisconnectClient(
+                        clientId, preventWillMessage, EXTENSION));
     }
 
     @NotNull
@@ -130,8 +130,8 @@ public class ClientServiceImpl implements ClientService {
     public CompletableFuture<Boolean> disconnectClient(
             final @NotNull String clientId,
             final boolean preventWillMessage,
-            final @NotNull DisconnectReasonCode reasonCode,
-            final @NotNull String reasonString) {
+            final @Nullable DisconnectReasonCode reasonCode,
+            final @Nullable String reasonString) {
         if (pluginServiceRateLimitService.rateLimitExceeded()) {
             return CompletableFuture.failedFuture(PluginServiceRateLimitService.RATE_LIMIT_EXCEEDED_EXCEPTION);
         }
