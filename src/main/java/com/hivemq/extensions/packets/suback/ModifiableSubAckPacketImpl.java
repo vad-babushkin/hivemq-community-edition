@@ -17,10 +17,11 @@ import java.util.List;
  */
 public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
 
-    private final @NotNull ModifiableUserProperties userProperties;
+    private final @NotNull ModifiableUserPropertiesImpl userProperties;
     private final int packetIdentifier;
 
     private final boolean modified = false;
+    private final String reasonString;
     private @NotNull List<SubackReasonCode> subAckReasonCodes = new ArrayList<>();
 
     public ModifiableSubAckPacketImpl(
@@ -30,13 +31,13 @@ public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
                 subAck.getUserProperties().getPluginUserProperties(),
                 fullConfigurationService.securityConfiguration().validateUTF8());
         this.packetIdentifier = subAck.getPacketIdentifier();
+        this.reasonString = subAck.getReasonString();
         final ArrayList<SubackReasonCode> subAckReasonCodes = new ArrayList<>();
         for (final Mqtt5SubAckReasonCode code : subAck.getReasonCodes()) {
             subAckReasonCodes.add(SubackReasonCode.valueOf(code.name()));
         }
     }
 
-    @Override
     public boolean isModified() {
         return modified || userProperties.isModified();
     }
@@ -50,6 +51,11 @@ public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
     @Override
     public List<SubackReasonCode> getReasonCodes() {
         return subAckReasonCodes;
+    }
+
+    @Override
+    public String getReasonString() {
+        return this.reasonString;
     }
 
     @Override

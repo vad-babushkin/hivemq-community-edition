@@ -3,7 +3,6 @@ package com.hivemq.extensions.interceptor.suback.parameter;
 import com.hivemq.configuration.service.FullConfigurationService;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.suback.parameter.SubAckOutboundOutput;
-import com.hivemq.extension.sdk.api.packets.suback.ModifiableSubAckPacket;
 import com.hivemq.extensions.executor.PluginOutPutAsyncer;
 import com.hivemq.extensions.executor.task.AbstractSimpleAsyncOutput;
 import com.hivemq.extensions.packets.suback.ModifiableSubAckPacketImpl;
@@ -31,7 +30,7 @@ public class SubAckOutboundOutputImpl extends AbstractSimpleAsyncOutput<SubAckOu
     }
 
     @Override
-    public @NotNull ModifiableSubAckPacket getSubAckPacket() {
+    public @NotNull ModifiableSubAckPacketImpl getSubAckPacket() {
         return this.subAckPacket;
     }
 

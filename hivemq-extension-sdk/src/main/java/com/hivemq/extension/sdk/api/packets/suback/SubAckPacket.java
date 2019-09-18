@@ -24,6 +24,14 @@ public interface SubAckPacket {
     List<SubackReasonCode> getReasonCodes();
 
     /**
+     * Represents the return codes for the QoS levels of the different Topics contained in the corresponding SUBSCRIBE
+     * message as well as potential failure codes as a String. Made for user analysis.
+     *
+     * @return The reason codes as a String.
+     */
+    String getReasonString();
+
+    /**
      * The packet identifier of the SUBSCRIBE packet.
      *
      * @return The packet identifier.

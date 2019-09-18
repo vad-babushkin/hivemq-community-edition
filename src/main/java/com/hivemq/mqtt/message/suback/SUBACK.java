@@ -20,9 +20,13 @@ import com.google.common.collect.ImmutableList;
 import com.hivemq.annotations.Immutable;
 import com.hivemq.annotations.NotNull;
 import com.hivemq.annotations.Nullable;
+import com.hivemq.extension.sdk.api.packets.general.UserProperty;
+import com.hivemq.extension.sdk.api.packets.suback.SubAckPacket;
+import com.hivemq.extension.sdk.api.packets.subscribe.SubackReasonCode;
 import com.hivemq.mqtt.message.MessageType;
 import com.hivemq.mqtt.message.mqtt5.Mqtt5UserProperties;
 import com.hivemq.mqtt.message.mqtt5.MqttMessageWithUserProperties.MqttMessageWithIdAndReasonCodes;
+import com.hivemq.mqtt.message.mqtt5.MqttUserProperty;
 import com.hivemq.mqtt.message.reason.Mqtt5SubAckReasonCode;
 
 import java.util.List;
@@ -66,5 +70,19 @@ public class SUBACK extends MqttMessageWithIdAndReasonCodes<Mqtt5SubAckReasonCod
     @Override
     public MessageType getType() {
         return MessageType.SUBACK;
+    }
+
+    public static SUBACK createSubackFrom(final @NotNull SubAckPacket packet) {
+        final List<Mqtt5SubAckReasonCode> subAckReasonCodes = ImmutableList.of();
+        for (final SubackReasonCode code : packet.getReasonCodes()) {
+            subAckReasonCodes.add(Mqtt5SubAckReasonCode.valueOf(code.name()));
+        }
+        final String reasonString = packet.getReasonString();
+        final ImmutableList.Builder<MqttUserProperty> userPropertyBuilder = ImmutableList.builder();
+        for (final UserProperty userProperty : packet.getUserProperties().asList()) {
+            userPropertyBuilder.add(new MqttUserProperty(userProperty.getName(), userProperty.getValue()));
+        }
+        final Mqtt5UserProperties mqtt5UserProperties = Mqtt5UserProperties.of(userPropertyBuilder.build());
+        return new SUBACK(packet.getPacketId(), subAckReasonCodes, reasonString, mqtt5UserProperties);
     }
 }
