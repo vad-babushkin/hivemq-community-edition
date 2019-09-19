@@ -29,6 +29,7 @@ import com.hivemq.mqtt.message.mqtt5.MqttMessageWithUserProperties.MqttMessageWi
 import com.hivemq.mqtt.message.mqtt5.MqttUserProperty;
 import com.hivemq.mqtt.message.reason.Mqtt5SubAckReasonCode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,8 +73,8 @@ public class SUBACK extends MqttMessageWithIdAndReasonCodes<Mqtt5SubAckReasonCod
         return MessageType.SUBACK;
     }
 
-    public static SUBACK createSubackFrom(final @NotNull SubAckPacket packet) {
-        final List<Mqtt5SubAckReasonCode> subAckReasonCodes = ImmutableList.of();
+    public static SUBACK createSubAckFrom(final @NotNull SubAckPacket packet) {
+        final List<Mqtt5SubAckReasonCode> subAckReasonCodes = new ArrayList<>();
         for (final SubackReasonCode code : packet.getReasonCodes()) {
             subAckReasonCodes.add(Mqtt5SubAckReasonCode.valueOf(code.name()));
         }
@@ -83,6 +84,6 @@ public class SUBACK extends MqttMessageWithIdAndReasonCodes<Mqtt5SubAckReasonCod
             userPropertyBuilder.add(new MqttUserProperty(userProperty.getName(), userProperty.getValue()));
         }
         final Mqtt5UserProperties mqtt5UserProperties = Mqtt5UserProperties.of(userPropertyBuilder.build());
-        return new SUBACK(packet.getPacketId(), subAckReasonCodes, reasonString, mqtt5UserProperties);
+        return new SUBACK(packet.getPacketIdentifier(), subAckReasonCodes, reasonString, mqtt5UserProperties);
     }
 }

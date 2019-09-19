@@ -90,6 +90,10 @@ public class ClientContextImpl {
         removeInterceptor(interceptor);
     }
 
+    public void removeSubAckOutboundInterceptor(@NotNull final SubAckOutboundInterceptor interceptor) {
+        removeInterceptor(interceptor);
+    }
+
     public void removeInterceptor(@NotNull final Interceptor interceptor) {
         interceptorList.remove(interceptor);
     }

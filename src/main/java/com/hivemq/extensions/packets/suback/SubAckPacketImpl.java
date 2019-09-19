@@ -41,7 +41,7 @@ public class SubAckPacketImpl implements SubAckPacket {
     }
 
     @Override
-    public int getPacketId() {
+    public int getPacketIdentifier() {
         return subAck.getPacketIdentifier();
     }
 

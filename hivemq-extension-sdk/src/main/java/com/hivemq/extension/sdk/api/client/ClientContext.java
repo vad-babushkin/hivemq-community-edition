@@ -22,6 +22,7 @@ import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.Interceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishOutboundInterceptor;
+import com.hivemq.extension.sdk.api.interceptor.suback.SubAckOutboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.SubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.packets.auth.ModifiableDefaultPermissions;
 
@@ -70,6 +71,15 @@ public interface ClientContext {
     void addSubscribeInboundInterceptor(@NotNull SubscribeInboundInterceptor subscribeInboundInterceptor);
 
     /**
+     * Adds an {@link SubAckOutboundInterceptor} for this client. <br> Subsequent adding of the same interceptor will be
+     * ignored.
+     *
+     * @param subAckOutboundInterceptor The implementation of a SubAckOutboundInterceptor.
+     * @throws NullPointerException If the interceptor is null.
+     */
+    void addSubAckOutboundInterceptor(@NotNull SubAckOutboundInterceptor subAckOutboundInterceptor);
+
+    /**
      * Removes an {@link PublishInboundInterceptor} for this client. <br>
      * Nothing happens if the interceptor that should be removed, has not been added in the first place.
      *
@@ -99,6 +109,15 @@ public interface ClientContext {
      * @since 4.2.0
      */
     void removeSubscribeInboundInterceptor(@NotNull SubscribeInboundInterceptor subscribeInboundInterceptor);
+
+    /**
+     * Removes an {@link SubAckOutboundInterceptor} for this client. <br> Nothing happens if the interceptor that should
+     * be removed, has not been added in the first place.
+     *
+     * @param subAckOutboundInterceptor The implementation of a SubAckOutboundInterceptor.
+     * @throws NullPointerException If the interceptor is null.
+     */
+    void removeSubAckOutboundInterceptor(@NotNull SubAckOutboundInterceptor subAckOutboundInterceptor);
 
     /**
      * Returns all {@link Interceptor} which are registered for this client.

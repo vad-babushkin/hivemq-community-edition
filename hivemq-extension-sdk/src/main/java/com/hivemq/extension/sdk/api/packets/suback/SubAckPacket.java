@@ -37,7 +37,7 @@ public interface SubAckPacket {
      * @return The packet identifier.
      * @since 4.2.0
      */
-    int getPacketId();
+    int getPacketIdentifier();
 
     /**
      * The user properties from the DISCONNECT packet.

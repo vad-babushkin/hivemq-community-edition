@@ -149,7 +149,7 @@ public class SubAckOutboundInterceptorHandler extends ChannelOutboundHandlerAdap
                 @NotNull final SubAckOutboundOutputImpl pluginOutput) {
             if (output.isTimedOut()) {
                 log.warn("Async timeout on outbound SUBACK interception.");
-                final SUBACK unmodifiedSuback = SUBACK.createSubackFrom(input.getSubAckPacket());
+                final SUBACK unmodifiedSuback = SUBACK.createSubAckFrom(input.getSubAckPacket());
                 output.update(unmodifiedSuback);
             } else if (pluginOutput.getSubAckPacket().isModified()) {
                 @NotNull final ModifiableSubAckPacketImpl subAckPacket = pluginOutput.getSubAckPacket();
@@ -196,7 +196,7 @@ public class SubAckOutboundInterceptorHandler extends ChannelOutboundHandlerAdap
                         "Uncaught exception was thrown from extension with id \"{}\" on outbound subAck interception. " +
                                 "Extensions are responsible to handle their own exceptions.", pluginId);
                 log.debug("Original exception: ", e);
-                final SUBACK suback = SUBACK.createSubackFrom(input.getSubAckPacket());
+                final SUBACK suback = SUBACK.createSubAckFrom(input.getSubAckPacket());
                 output.update(suback);
             }
             return output;
@@ -229,10 +229,10 @@ public class SubAckOutboundInterceptorHandler extends ChannelOutboundHandlerAdap
         @Override
         public void onSuccess(@Nullable final Void result) {
             try {
-                final SUBACK finalSubAck = SUBACK.createSubackFrom(output.getSubAckPacket());
+                final SUBACK finalSubAck = SUBACK.createSubAckFrom(output.getSubAckPacket());
                 ctx.writeAndFlush(finalSubAck, promise);
             } catch (final Exception e) {
-                log.error("Exception while modifying an intercepted disconnect message.", e);
+                log.error("Exception while modifying an intercepted suback message.", e);
                 ctx.writeAndFlush(subAck, promise);
             }
         }

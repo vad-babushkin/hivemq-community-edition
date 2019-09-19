@@ -59,7 +59,7 @@ public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
     }
 
     @Override
-    public int getPacketId() {
+    public int getPacketIdentifier() {
         return this.packetIdentifier;
     }
 
