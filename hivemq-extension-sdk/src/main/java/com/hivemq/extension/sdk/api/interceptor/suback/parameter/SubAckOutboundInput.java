@@ -8,7 +8,7 @@ import com.hivemq.extension.sdk.api.packets.suback.SubAckPacket;
 import com.hivemq.extension.sdk.api.parameter.ClientBasedInput;
 
 /**
- * This is the input parameter of any {@link SubAckOutboundInterceptor} providing SUBACK, conenction and client based
+ * This is the input parameter of any {@link SubAckOutboundInterceptor} providing SUBACK, connection and client based
  * information.
  *
  * @author Robin Atherton

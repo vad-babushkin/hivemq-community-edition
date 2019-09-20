@@ -10,6 +10,13 @@ import java.util.List;
 public interface ModifiableSubAckPacket extends SubAckPacket {
 
     /**
+     * Sets the reasonString for the SUBACK packet.
+     *
+     * @param reasonString the reason to be set as a String.
+     */
+    void setReasonString(String reasonString);
+
+    /**
      * Method to manipulate the reason Codes of the SUBACK packet.
      *
      * @param reasonCodes the list of reasonCodes to be written into the SUBACK packet.

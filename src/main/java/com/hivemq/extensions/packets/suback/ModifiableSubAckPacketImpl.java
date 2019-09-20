@@ -20,9 +20,9 @@ public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
     private final @NotNull ModifiableUserPropertiesImpl userProperties;
     private final int packetIdentifier;
 
-    private final boolean modified = false;
-    private final String reasonString;
-    private @NotNull List<SubackReasonCode> subAckReasonCodes = new ArrayList<>();
+    private boolean modified = false;
+    private String reasonString;
+    private @NotNull List<SubackReasonCode> subAckReasonCodes;
 
     public ModifiableSubAckPacketImpl(
             final @NotNull FullConfigurationService fullConfigurationService,
@@ -36,6 +36,7 @@ public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
         for (final Mqtt5SubAckReasonCode code : subAck.getReasonCodes()) {
             subAckReasonCodes.add(SubackReasonCode.valueOf(code.name()));
         }
+        this.subAckReasonCodes = subAckReasonCodes;
     }
 
     public boolean isModified() {
@@ -43,9 +44,20 @@ public class ModifiableSubAckPacketImpl implements ModifiableSubAckPacket {
     }
 
     @Override
+    public void setReasonString(final @NotNull String reasonString) {
+        this.reasonString = reasonString;
+        this.modified = true;
+    }
+
+    @Override
     public void setReasonCodes(
             final List<SubackReasonCode> reasonCodes) {
+        if (this.subAckReasonCodes.size() < reasonCodes.size()) {
+            //TODO
+            return;
+        }
         this.subAckReasonCodes = reasonCodes;
+        this.modified = true;
     }
 
     @Override
