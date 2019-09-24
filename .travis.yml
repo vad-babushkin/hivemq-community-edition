@@ -9,6 +9,8 @@ jdk:
 stages:
   - test
   - build
+  - name: docker
+    if: branch = master && type != pull_request
 
 jobs:
   include:
@@ -16,6 +18,9 @@ jobs:
       script: ./gradlew test
     - stage: build
       script: ./gradlew packaging
+    - stage: docker
+      install: true
+      script: PUSH_IMAGE=true docker/build.sh
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
