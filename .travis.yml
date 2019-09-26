@@ -15,11 +15,13 @@ stages:
 jobs:
   include:
     - stage: test
+      install: skip
       script: ./gradlew test
     - stage: build
+      install: skip
       script: ./gradlew packaging
     - stage: docker
-      install: true
+      install: skip
       script: PUSH_IMAGE=true docker/build.sh
 
 before_cache:
