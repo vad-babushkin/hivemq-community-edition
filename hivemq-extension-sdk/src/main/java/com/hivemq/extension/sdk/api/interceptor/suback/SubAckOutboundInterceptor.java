@@ -6,7 +6,12 @@ import com.hivemq.extension.sdk.api.interceptor.suback.parameter.SubAckOutboundI
 import com.hivemq.extension.sdk.api.interceptor.suback.parameter.SubAckOutboundOutput;
 
 /**
- * Represents a SUBACK packet.
+ * Interface for the subscribe inbound interception.
+ * <p>
+ * Interceptors are always called by the same Thread for all subscribe messages from the same client.
+ *
+ * If the same instance is shared between multiple clients it can be called in different Threads and must therefore be
+ * thread-safe.
  *
  * @author Robin Atherton
  */

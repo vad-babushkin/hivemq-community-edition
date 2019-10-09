@@ -16,7 +16,6 @@ import java.time.Duration;
  * <p>
  *
  * @author Robin Atherton
- * @since 4.2.0
  **/
 
 public interface SubAckOutboundOutput extends SimpleAsyncOutput<SubAckOutboundOutput> {
