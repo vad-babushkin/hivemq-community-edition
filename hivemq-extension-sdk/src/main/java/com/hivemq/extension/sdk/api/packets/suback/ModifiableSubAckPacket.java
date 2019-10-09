@@ -10,18 +10,24 @@ import java.util.List;
 public interface ModifiableSubAckPacket extends SubAckPacket {
 
     /**
-     * Sets the reasonString for the SUBACK packet.
+     * Sets a list of {@link SubackReasonCode}s for the SUBACK packet.
      *
-     * @param reasonString the reason to be set as a String.
+     * @throws NullPointerException If the list of reason codes is <null>.
+     * @throws IllegalArgumentException If the amount of reason codes passed differs
+     *                                  from that contained in the packet being manipulated.
+     * @param reasonCodes the list of reason codes to be written into the SUBACK packet.
      */
-    void setReasonString(String reasonString);
+    void setReasonCodes(final @NotNull List<SubackReasonCode> reasonCodes);
 
     /**
-     * Method to manipulate the reason Codes of the SUBACK packet.
+     * Sets the reason string for the SUBACK packet.
      *
-     * @param reasonCodes the list of reasonCodes to be written into the SUBACK packet.
+     * @param reasonString the reason to be set as a String.
+     * @throws NullPointerException     If reason String is <null>.
+     * @throws IllegalArgumentException If the reason string is not a valid UTF-8 string.
+     * @throws IllegalArgumentException If the reason string exceeds the UTF-8 string length limit.
      */
-    void setReasonCodes(final List<SubackReasonCode> reasonCodes);
+    void setReasonString(final @NotNull String reasonString);
 
     /**
      * Gets the modifiable {@link UserProperties} of the SUBACK packet.
