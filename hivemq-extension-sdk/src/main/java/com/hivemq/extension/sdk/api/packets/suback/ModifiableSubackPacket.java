@@ -7,7 +7,10 @@ import com.hivemq.extension.sdk.api.packets.subscribe.SubackReasonCode;
 
 import java.util.List;
 
-public interface ModifiableSubAckPacket extends SubAckPacket {
+/**
+ * @author Robin Atherton
+ */
+public interface ModifiableSubackPacket extends SubackPacket {
 
     /**
      * Sets a list of {@link SubackReasonCode}s for the SUBACK packet.

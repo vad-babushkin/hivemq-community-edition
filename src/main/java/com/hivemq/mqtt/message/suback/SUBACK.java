@@ -21,7 +21,7 @@ import com.hivemq.annotations.Immutable;
 import com.hivemq.annotations.NotNull;
 import com.hivemq.annotations.Nullable;
 import com.hivemq.extension.sdk.api.packets.general.UserProperty;
-import com.hivemq.extension.sdk.api.packets.suback.SubAckPacket;
+import com.hivemq.extension.sdk.api.packets.suback.SubackPacket;
 import com.hivemq.extension.sdk.api.packets.subscribe.SubackReasonCode;
 import com.hivemq.mqtt.message.MessageType;
 import com.hivemq.mqtt.message.mqtt5.Mqtt5UserProperties;
@@ -73,7 +73,7 @@ public class SUBACK extends MqttMessageWithIdAndReasonCodes<Mqtt5SubAckReasonCod
         return MessageType.SUBACK;
     }
 
-    public static SUBACK createSubAckFrom(final @NotNull SubAckPacket packet) {
+    public static @NotNull SUBACK createSubAckFrom(final @NotNull SubackPacket packet) {
         final List<Mqtt5SubAckReasonCode> subAckReasonCodes = new ArrayList<>();
         for (final SubackReasonCode code : packet.getReasonCodes()) {
             subAckReasonCodes.add(Mqtt5SubAckReasonCode.valueOf(code.name()));

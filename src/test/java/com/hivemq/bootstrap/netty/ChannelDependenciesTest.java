@@ -166,7 +166,7 @@ public class ChannelDependenciesTest {
     private ConnackOutboundInterceptorHandler connackOutboundInterceptorHandler;
 
     @Mock
-    private SubAckOutboundInterceptorHandler subAckOutboundInterceptorHandler;
+    private SubackOutboundInterceptorHandler subAckOutboundInterceptorHandler;
 
     @Before
     public void setUp() throws Exception {

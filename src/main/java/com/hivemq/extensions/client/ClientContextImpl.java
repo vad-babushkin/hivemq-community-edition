@@ -21,7 +21,7 @@ import com.hivemq.annotations.NotNull;
 import com.hivemq.extension.sdk.api.interceptor.Interceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishOutboundInterceptor;
-import com.hivemq.extension.sdk.api.interceptor.suback.SubAckOutboundInterceptor;
+import com.hivemq.extension.sdk.api.interceptor.suback.SubackOutboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.SubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.packets.auth.ModifiableDefaultPermissions;
 import com.hivemq.extensions.HiveMQExtension;
@@ -78,7 +78,7 @@ public class ClientContextImpl {
         addInterceptor(interceptor);
     }
 
-    public void addSubAckOutboundInterceptor(@NotNull final SubAckOutboundInterceptor interceptor) {
+    public void addSubackOutboundInterceptor(@NotNull final SubackOutboundInterceptor interceptor) {
         addInterceptor(interceptor);
     }
 
@@ -90,7 +90,7 @@ public class ClientContextImpl {
         removeInterceptor(interceptor);
     }
 
-    public void removeSubAckOutboundInterceptor(@NotNull final SubAckOutboundInterceptor interceptor) {
+    public void removeSubackOutboundInterceptor(@NotNull final SubackOutboundInterceptor interceptor) {
         removeInterceptor(interceptor);
     }
 
@@ -179,23 +179,23 @@ public class ClientContextImpl {
 
     @NotNull
     @Immutable
-    public List<SubAckOutboundInterceptor> getSubAckOutboundInterceptorsForPlugin(
+    public List<SubackOutboundInterceptor> getSubackOutboundInterceptorsForPlugin(
             @NotNull final IsolatedPluginClassloader pluginClassloader) {
         return interceptorList.stream()
                 .filter(interceptor -> interceptor.getClass().getClassLoader().equals(pluginClassloader))
-                .filter(interceptor -> interceptor instanceof SubAckOutboundInterceptor)
-                .map(interceptor -> (SubAckOutboundInterceptor) interceptor)
+                .filter(interceptor -> interceptor instanceof SubackOutboundInterceptor)
+                .map(interceptor -> (SubackOutboundInterceptor) interceptor)
                 .collect(Collectors.toUnmodifiableList());
     }
 
     @NotNull
     @Immutable
-    public List<SubAckOutboundInterceptor> getSubAckOutboundInterceptors() {
+    public List<SubackOutboundInterceptor> getSubackOutboundInterceptors() {
         return interceptorList.stream()
-                .filter(interceptor -> interceptor instanceof SubAckOutboundInterceptor)
+                .filter(interceptor -> interceptor instanceof SubackOutboundInterceptor)
                 .filter(this::hasPluginForClassloader)
                 .sorted(Comparator.comparingInt(this::comparePluginPriority).reversed())
-                .map(interceptor -> (SubAckOutboundInterceptor) interceptor)
+                .map(interceptor -> (SubackOutboundInterceptor) interceptor)
                 .collect(Collectors.toUnmodifiableList());
     }
 

@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Robin Atherton
  */
-public interface SubAckPacket {
+public interface SubackPacket {
 
     /**
      * Represents the return codes for the QoS levels of the different Topics contained in the corresponding SUBSCRIBE
@@ -21,7 +21,7 @@ public interface SubAckPacket {
      *
      * @return The reason codes for the subscribed topics.
      */
-    List<SubackReasonCode> getReasonCodes();
+    @NotNull List<SubackReasonCode> getReasonCodes();
 
     /**
      * Represents the return codes for the QoS levels of the different Topics contained in the corresponding SUBSCRIBE
@@ -29,7 +29,7 @@ public interface SubAckPacket {
      *
      * @return The reason codes as a String.
      */
-    String getReasonString();
+    @NotNull String getReasonString();
 
     /**
      * The packet identifier of the SUBSCRIBE packet.

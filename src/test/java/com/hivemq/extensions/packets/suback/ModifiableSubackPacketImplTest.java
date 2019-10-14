@@ -17,9 +17,12 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class ModifiableSubAckPacketImplTest {
+/**
+ * @author Robin Atherton
+ */
+public class ModifiableSubackPacketImplTest {
 
-    private ModifiableSubAckPacketImpl packet;
+    private ModifiableSubackPacketImpl packet;
 
     private SUBACK original;
 
@@ -60,11 +63,11 @@ public class ModifiableSubAckPacketImplTest {
 
     @Test
     public void test_modify_packet() {
-        packet = new ModifiableSubAckPacketImpl(configurationService, original);
+        packet = new ModifiableSubackPacketImpl(configurationService, original);
         packet.setReasonCodes(modifiedReasonCodes);
         assertTrue(packet.isModified());
 
-        packet = new ModifiableSubAckPacketImpl(configurationService, original);
+        packet = new ModifiableSubackPacketImpl(configurationService, original);
         packet.setReasonString("testTestTest");
         assertTrue(packet.isModified());
     }
@@ -101,7 +104,7 @@ public class ModifiableSubAckPacketImplTest {
         packet.setReasonCodes(subackReasonCodes);
     }
 
-    private ModifiableSubAckPacketImpl createTestSubAckPacket(
+    private ModifiableSubackPacketImpl createTestSubAckPacket(
             final int packetIdentifier,
             final List<Mqtt5SubAckReasonCode> reasonCodes,
             final String reasonString) {
@@ -110,14 +113,13 @@ public class ModifiableSubAckPacketImplTest {
                 Mqtt5UserProperties.builder().add(new MqttUserProperty("test", "test"));
         final Mqtt5UserProperties properties = builder.build();
         final SUBACK suback = new SUBACK(packetIdentifier, reasonCodes, reasonString, properties);
-        return new ModifiableSubAckPacketImpl(configurationService, suback);
+        return new ModifiableSubackPacketImpl(configurationService, suback);
     }
 
     private SUBACK createTestSubAck(
             final int packetIdentifier,
             final List<Mqtt5SubAckReasonCode> reasonCodes,
             final String reasonString) {
-        configurationService = new TestConfigurationBootstrap().getFullConfigurationService();
         final Mqtt5UserPropertiesBuilder builder =
                 Mqtt5UserProperties.builder().add(new MqttUserProperty("test", "test"));
         final Mqtt5UserProperties properties = builder.build();

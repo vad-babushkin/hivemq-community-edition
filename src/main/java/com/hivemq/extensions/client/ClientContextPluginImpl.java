@@ -22,7 +22,7 @@ import com.hivemq.extension.sdk.api.client.ClientContext;
 import com.hivemq.extension.sdk.api.interceptor.Interceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishInboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.publish.PublishOutboundInterceptor;
-import com.hivemq.extension.sdk.api.interceptor.suback.SubAckOutboundInterceptor;
+import com.hivemq.extension.sdk.api.interceptor.suback.SubackOutboundInterceptor;
 import com.hivemq.extension.sdk.api.interceptor.subscribe.SubscribeInboundInterceptor;
 import com.hivemq.extension.sdk.api.packets.auth.ModifiableDefaultPermissions;
 import com.hivemq.extensions.classloader.IsolatedPluginClassloader;
@@ -66,7 +66,7 @@ public class ClientContextPluginImpl extends AbstractOutput implements ClientCon
     }
 
     @Override
-    public void addSubAckOutboundInterceptor(final @NotNull SubAckOutboundInterceptor interceptor) {
+    public void addSubAckOutboundInterceptor(final @NotNull SubackOutboundInterceptor interceptor) {
         clientContext.addInterceptor(checkNotNull(interceptor, "The interceptor must never be null"));
     }
 
@@ -86,7 +86,7 @@ public class ClientContextPluginImpl extends AbstractOutput implements ClientCon
     }
 
     @Override
-    public void removeSubAckOutboundInterceptor(final @NotNull SubAckOutboundInterceptor interceptor) {
+    public void removeSubackOutboundInterceptor(final @NotNull SubackOutboundInterceptor interceptor) {
         clientContext.removeInterceptor(checkNotNull(interceptor, "The interceptor must never be null"));
     }
 

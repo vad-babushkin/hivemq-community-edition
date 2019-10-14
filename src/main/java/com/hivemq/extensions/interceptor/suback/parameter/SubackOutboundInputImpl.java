@@ -1,11 +1,11 @@
 package com.hivemq.extensions.interceptor.suback.parameter;
 
-import com.hivemq.extension.sdk.api.annotations.Immutable;
-import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.annotations.Immutable;
+import com.hivemq.annotations.NotNull;
 import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
 import com.hivemq.extension.sdk.api.client.parameter.ConnectionInformation;
-import com.hivemq.extension.sdk.api.interceptor.suback.parameter.SubAckOutboundInput;
-import com.hivemq.extension.sdk.api.packets.suback.SubAckPacket;
+import com.hivemq.extension.sdk.api.interceptor.suback.parameter.SubackOutboundInput;
+import com.hivemq.extension.sdk.api.packets.suback.SubackPacket;
 import com.hivemq.extensions.PluginInformationUtil;
 import com.hivemq.extensions.executor.task.PluginTaskInput;
 import io.netty.channel.Channel;
@@ -15,15 +15,15 @@ import java.util.function.Supplier;
 /**
  * @author Robin Atherton
  */
-public class SubAckOutboundInputImpl implements Supplier<SubAckOutboundInputImpl>, SubAckOutboundInput,
+public class SubackOutboundInputImpl implements Supplier<SubackOutboundInputImpl>, SubackOutboundInput,
         PluginTaskInput {
 
     private final @NotNull ConnectionInformation connectionInformation;
     private final @NotNull ClientInformation clientInformation;
-    private @NotNull SubAckPacket subAckPacket;
+    private @NotNull SubackPacket subAckPacket;
 
-    public SubAckOutboundInputImpl(
-            final @NotNull SubAckPacket subAckPacket,
+    public SubackOutboundInputImpl(
+            final @NotNull SubackPacket subAckPacket,
             final @NotNull String clientId,
             final @NotNull Channel channel) {
         this.subAckPacket = subAckPacket;
@@ -32,7 +32,9 @@ public class SubAckOutboundInputImpl implements Supplier<SubAckOutboundInputImpl
     }
 
     @Override
-    public @NotNull @Immutable SubAckPacket getSubAckPacket() {
+    public @NotNull
+    @Immutable
+    SubackPacket getSubAckPacket() {
         return subAckPacket;
     }
 
@@ -47,11 +49,11 @@ public class SubAckOutboundInputImpl implements Supplier<SubAckOutboundInputImpl
     }
 
     @Override
-    public SubAckOutboundInputImpl get() {
+    public SubackOutboundInputImpl get() {
         return this;
     }
 
-    public void updateSubAck(final @NotNull SubAckPacket subAckPacket) {
+    public void updateSubAck(final @NotNull SubackPacket subAckPacket) {
         this.subAckPacket = subAckPacket;
     }
 }

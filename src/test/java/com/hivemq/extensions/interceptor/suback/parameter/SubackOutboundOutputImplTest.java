@@ -1,7 +1,7 @@
 package com.hivemq.extensions.interceptor.suback.parameter;
 
 import com.hivemq.configuration.service.FullConfigurationService;
-import com.hivemq.extension.sdk.api.packets.suback.ModifiableSubAckPacket;
+import com.hivemq.extension.sdk.api.packets.suback.ModifiableSubackPacket;
 import com.hivemq.extension.sdk.api.packets.subscribe.SubackReasonCode;
 import com.hivemq.extensions.executor.PluginOutPutAsyncer;
 import com.hivemq.mqtt.message.reason.Mqtt5SubAckReasonCode;
@@ -17,13 +17,16 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class SubAckOutboundOutputImplTest {
+/**
+ * @author Robin Atherton
+ */
+public class SubackOutboundOutputImplTest {
 
     private SUBACK subAck;
 
     @Mock
     private PluginOutPutAsyncer asyncer;
-    private SubAckOutboundOutputImpl output;
+    private SubackOutboundOutputImpl output;
 
     @Before
     public void setUp() throws Exception {
@@ -31,12 +34,12 @@ public class SubAckOutboundOutputImplTest {
         final FullConfigurationService configurationService =
                 new TestConfigurationBootstrap().getFullConfigurationService();
         subAck = TestMessageUtil.createFullMqtt5Suback();
-        output = new SubAckOutboundOutputImpl(configurationService, asyncer, subAck);
+        output = new SubackOutboundOutputImpl(configurationService, asyncer, subAck);
     }
 
     @Test
     public void test_getModifiable() {
-        final ModifiableSubAckPacket modifiableSubAckPacket = output.get().getSubAckPacket();
+        final ModifiableSubackPacket modifiableSubAckPacket = output.get().getSubAckPacket();
         assertEquals(subAck.getPacketIdentifier(), modifiableSubAckPacket.getPacketIdentifier());
         assertEquals(
                 subAck.getUserProperties().size(), modifiableSubAckPacket.getUserProperties().asList().size());

@@ -1,7 +1,7 @@
 package com.hivemq.extensions.interceptor.suback.parameter;
 
-import com.hivemq.extension.sdk.api.packets.suback.SubAckPacket;
-import com.hivemq.extensions.packets.suback.SubAckPacketImpl;
+import com.hivemq.extension.sdk.api.packets.suback.SubackPacket;
+import com.hivemq.extensions.packets.suback.SubackPacketImpl;
 import com.hivemq.mqtt.message.ProtocolVersion;
 import com.hivemq.mqtt.message.mqtt5.Mqtt5UserProperties;
 import com.hivemq.mqtt.message.mqtt5.MqttUserProperty;
@@ -16,7 +16,10 @@ import util.TestMessageUtil;
 
 import java.util.List;
 
-public class SubAckOutboundInputImplTest {
+/**
+ * @author Robin Atherton
+ */
+public class SubackOutboundInputImplTest {
 
     public static final Mqtt5UserProperties TEST_USER_PROPERTIES =
             Mqtt5UserProperties.of(new MqttUserProperty("user1", "property1"),
@@ -27,8 +30,8 @@ public class SubAckOutboundInputImplTest {
         final EmbeddedChannel embeddedChannel = new EmbeddedChannel();
         embeddedChannel.attr(ChannelAttributes.MQTT_VERSION).set(ProtocolVersion.MQTTv5);
 
-        final SubAckPacket subAckPacket = new SubAckPacketImpl(TestMessageUtil.createFullMqtt5Suback());
-        final SubAckOutboundInputImpl input = new SubAckOutboundInputImpl(subAckPacket, "client", embeddedChannel);
+        final SubackPacket subAckPacket = new SubackPacketImpl(TestMessageUtil.createFullMqtt5Suback());
+        final SubackOutboundInputImpl input = new SubackOutboundInputImpl(subAckPacket, "client", embeddedChannel);
         Assert.assertNotNull(input.getClientInformation());
         Assert.assertNotNull(input.getConnectionInformation());
         Assert.assertNotNull(input.getSubAckPacket());
@@ -36,7 +39,7 @@ public class SubAckOutboundInputImplTest {
 
     @Test
     public void create_SUBACK_from_package_test() {
-        final SubAckPacketImpl subAckPacket = new SubAckPacketImpl(TestMessageUtil.createFullMqtt5Suback());
+        final SubackPacketImpl subAckPacket = new SubackPacketImpl(TestMessageUtil.createFullMqtt5Suback());
         final List<Mqtt5SubAckReasonCode> reasonCodes = Lists.newArrayList(
                 Mqtt5SubAckReasonCode.GRANTED_QOS_0,
                 Mqtt5SubAckReasonCode.GRANTED_QOS_1,
@@ -60,24 +63,24 @@ public class SubAckOutboundInputImplTest {
 
     @Test(expected = NullPointerException.class)
     public void test_clientId_null() {
-        final SubAckPacketImpl subAckPacket =
-                new SubAckPacketImpl(TestMessageUtil.createFullMqtt5Suback());
-        final SubAckOutboundInputImpl subAckOutboundInput =
-                new SubAckOutboundInputImpl(subAckPacket, null, new EmbeddedChannel());
+        final SubackPacketImpl subAckPacket =
+                new SubackPacketImpl(TestMessageUtil.createFullMqtt5Suback());
+        final SubackOutboundInputImpl subAckOutboundInput =
+                new SubackOutboundInputImpl(subAckPacket, null, new EmbeddedChannel());
     }
 
     @Test(expected = NullPointerException.class)
     public void test_channel_null() {
-        final SubAckPacketImpl subAckPacket =
-                new SubAckPacketImpl(TestMessageUtil.createFullMqtt5Suback());
-        final SubAckOutboundInputImpl subAckOutboundInput =
-                new SubAckOutboundInputImpl(subAckPacket, "client", null);
+        final SubackPacketImpl subAckPacket =
+                new SubackPacketImpl(TestMessageUtil.createFullMqtt5Suback());
+        final SubackOutboundInputImpl subAckOutboundInput =
+                new SubackOutboundInputImpl(subAckPacket, "client", null);
     }
 
     @Test(expected = NullPointerException.class)
     public void test_packet_null() {
-        final SubAckOutboundInputImpl disconnectInboundInput =
-                new SubAckOutboundInputImpl(null, "client", new EmbeddedChannel());
+        final SubackOutboundInputImpl disconnectInboundInput =
+                new SubackOutboundInputImpl(null, "client", new EmbeddedChannel());
     }
 
 }

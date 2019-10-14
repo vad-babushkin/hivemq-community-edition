@@ -162,7 +162,7 @@ public class ChannelDependencies {
     private final ConnackOutboundInterceptorHandler connackOutboundInterceptorHandler;
 
     @NotNull
-    private final SubAckOutboundInterceptorHandler subAckOutboundInterceptorHandler;
+    private final SubackOutboundInterceptorHandler subAckOutboundInterceptorHandler;
 
     @Inject
     public ChannelDependencies(
@@ -201,7 +201,7 @@ public class ChannelDependencies {
             @NotNull final PublishOutboundInterceptorHandler publishOutboundInterceptorHandler,
             @NotNull final ConnectInboundInterceptorHandler connectInboundInterceptorHandler,
             @NotNull final ConnackOutboundInterceptorHandler connackOutboundInterceptorHandler,
-            @NotNull final SubAckOutboundInterceptorHandler subAckOutboundInterceptorHandler) {
+            @NotNull final SubackOutboundInterceptorHandler subAckOutboundInterceptorHandler) {
 
 
         this.statisticsInitializer = statisticsInitializer;
@@ -418,7 +418,7 @@ public class ChannelDependencies {
     }
 
     @NotNull
-    public SubAckOutboundInterceptorHandler getSubAckOutboundInterceptorHandler() {
+    public SubackOutboundInterceptorHandler getSubAckOutboundInterceptorHandler() {
         return subAckOutboundInterceptorHandler;
     }
 }
