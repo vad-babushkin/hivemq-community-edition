@@ -16,11 +16,15 @@
 
 package com.hivemq.mqtt.message.puback;
 
-import com.hivemq.annotations.NotNull;
-import com.hivemq.annotations.Nullable;
+import com.google.common.collect.ImmutableList;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
+import com.hivemq.extension.sdk.api.packets.general.UserProperty;
+import com.hivemq.extension.sdk.api.packets.puback.PubackPacket;
 import com.hivemq.mqtt.message.MessageType;
 import com.hivemq.mqtt.message.mqtt5.Mqtt5UserProperties;
 import com.hivemq.mqtt.message.mqtt5.MqttMessageWithUserProperties;
+import com.hivemq.mqtt.message.mqtt5.MqttUserProperty;
 import com.hivemq.mqtt.message.reason.Mqtt5PubAckReasonCode;
 
 /**
@@ -30,7 +34,8 @@ import com.hivemq.mqtt.message.reason.Mqtt5PubAckReasonCode;
  * @author Waldemar Ruck
  * @since 1.4
  */
-public class PUBACK extends MqttMessageWithUserProperties.MqttMessageWithIdAndReasonCode<Mqtt5PubAckReasonCode> implements Mqtt3PUBACK, Mqtt5PUBACK {
+public class PUBACK extends MqttMessageWithUserProperties.MqttMessageWithIdAndReasonCode<Mqtt5PubAckReasonCode>
+        implements Mqtt3PUBACK, Mqtt5PUBACK {
 
     //MQTT 3
     public PUBACK(final int packetIdentifier) {
@@ -38,16 +43,33 @@ public class PUBACK extends MqttMessageWithUserProperties.MqttMessageWithIdAndRe
     }
 
     //MQTT 5
-    public PUBACK(final int packetIdentifier,
-                  @NotNull final Mqtt5PubAckReasonCode reasonCode,
-                  @Nullable final String reasonString,
-                  @NotNull final Mqtt5UserProperties userProperties) {
+    public PUBACK(
+            final int packetIdentifier,
+            final @NotNull Mqtt5PubAckReasonCode reasonCode,
+            final @Nullable String reasonString,
+            final @NotNull Mqtt5UserProperties userProperties) {
+
         super(packetIdentifier, reasonCode, reasonString, userProperties);
     }
 
-    @NotNull
     @Override
-    public MessageType getType() {
+    public @NotNull MessageType getType() {
         return MessageType.PUBACK;
+    }
+
+    public static @NotNull PUBACK createPubackFrom(final @NotNull PubackPacket packet) {
+
+        final int packetIdentifier = packet.getPacketIdentifier();
+        final Mqtt5PubAckReasonCode reasonCode = Mqtt5PubAckReasonCode.from(packet.getReasonCode());
+
+        final String reasonString = packet.getReasonString().orElse(null);
+
+        final ImmutableList.Builder<MqttUserProperty> userPropertyBuilder = ImmutableList.builder();
+        for (final UserProperty userProperty : packet.getUserProperties().asList()) {
+            userPropertyBuilder.add(new MqttUserProperty(userProperty.getName(), userProperty.getValue()));
+        }
+        final Mqtt5UserProperties mqtt5UserProperties = Mqtt5UserProperties.of(userPropertyBuilder.build());
+
+        return new PUBACK(packetIdentifier, reasonCode, reasonString, mqtt5UserProperties);
     }
 }

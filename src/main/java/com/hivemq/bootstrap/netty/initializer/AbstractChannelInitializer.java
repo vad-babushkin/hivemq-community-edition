@@ -17,18 +17,17 @@
 package com.hivemq.bootstrap.netty.initializer;
 
 import com.google.common.base.Preconditions;
-import com.hivemq.annotations.NotNull;
 import com.hivemq.bootstrap.netty.ChannelDependencies;
 import com.hivemq.codec.decoder.MQTTMessageDecoder;
 import com.hivemq.configuration.service.RestrictionsConfigurationService;
 import com.hivemq.configuration.service.entity.Listener;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.logging.EventLog;
 import com.hivemq.mqtt.handler.connect.MessageBarrier;
-import com.hivemq.mqtt.handler.connect.NoConnectIdleHandler;
-import com.hivemq.mqtt.handler.connect.RemoveConnectIdleHandler;
 import com.hivemq.mqtt.handler.connect.SubscribeMessageBarrier;
 import com.hivemq.mqtt.handler.publish.ChannelInactiveHandler;
 import com.hivemq.security.exception.SslException;
+import com.hivemq.util.ChannelAttributes;
 import com.hivemq.util.ChannelUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -45,6 +44,7 @@ import static com.hivemq.configuration.service.InternalConfigurations.DROP_MESSA
 /**
  * @author Dominik Obermaier
  * @author Christoph Schäbel
+ * @author Silvio Giebl
  */
 public abstract class AbstractChannelInitializer extends ChannelInitializer<Channel> {
 
@@ -59,9 +59,10 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
     @NotNull
     private final EventLog eventLog;
 
-    public AbstractChannelInitializer(@NotNull final ChannelDependencies channelDependencies,
-                                      @NotNull final Listener listener,
-                                      @NotNull final EventLog eventLog) {
+    public AbstractChannelInitializer(
+            @NotNull final ChannelDependencies channelDependencies,
+            @NotNull final Listener listener,
+            @NotNull final EventLog eventLog) {
         this.channelDependencies = channelDependencies;
         this.listener = listener;
         this.eventLog = eventLog;
@@ -72,34 +73,41 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
 
         Preconditions.checkNotNull(ch, "Channel must never be null");
 
-        addNoConnectIdleHandler(ch);
+        ch.attr(ChannelAttributes.LISTENER).set(listener);
 
         ch.pipeline().addLast(FIRST_ABSTRACT_HANDLER, new ChannelGroupHandler(channelDependencies.getChannelGroup()));
 
         ch.pipeline().addLast(GLOBAL_THROTTLING_HANDLER, channelDependencies.getGlobalTrafficShapingHandler());
 
         ch.pipeline().addLast(MQTT_MESSAGE_DECODER, new MQTTMessageDecoder(channelDependencies));
-
         ch.pipeline().addLast(MQTT_MESSAGE_ENCODER, channelDependencies.getMqttMessageEncoder());
 
-        ch.pipeline().addLast(REMOVE_CONNECT_IDLE_HANDLER, new RemoveConnectIdleHandler());
+        addNoConnectIdleHandler(ch);
 
-        //Must be before encoder
-        ch.pipeline().addLast(PLUGIN_INITIALIZER_HANDLER, channelDependencies.getPluginInitializerHandler());
-
-        //Must be after decoder
-        ch.pipeline().addLast(CONNECT_INBOUND_INTERCEPTOR_HANDLER, channelDependencies.getConnectInboundInterceptorHandler());
-        ch.pipeline().addLast(CLIENT_LIFECYCLE_EVENT_HANDLER, channelDependencies.getClientLifecycleEventHandler());
-
-        ch.pipeline().addLast(PUBLISH_OUTBOUND_INTERCEPTOR_HANDLER, channelDependencies.getPublishOutboundInterceptorHandler());
-
-        ch.pipeline().addLast(LISTENER_ATTRIBUTE_ADDER, channelDependencies.getListenerAttributeAdderFactory().get(listener));
-
-        ch.pipeline().addLast(STOP_READING_AFTER_CONNECT_HANDLER, channelDependencies.getStopReadingAfterConnectHandler());
         ch.pipeline().addLast(MQTT_MESSAGE_BARRIER, new MessageBarrier(eventLog));
-
         ch.pipeline().addLast(MQTT_SUBSCRIBE_MESSAGE_BARRIER, new SubscribeMessageBarrier());
 
+        // before connack outbound interceptor as it initializes the client context after the connack
+        ch.pipeline().addLast(PLUGIN_INITIALIZER_HANDLER, channelDependencies.getPluginInitializerHandler());
+
+        ch.pipeline().addLast(CONNECT_INBOUND_INTERCEPTOR_HANDLER, channelDependencies.getConnectInboundInterceptorHandler());
+        ch.pipeline().addLast(CONNACK_OUTBOUND_INTERCEPTOR_HANDLER, channelDependencies.getConnackOutboundInterceptorHandler());
+        ch.pipeline().addLast(PING_INTERCEPTOR_HANDLER, channelDependencies.getPingInterceptorHandler());
+        ch.pipeline().addLast(PUBLISH_OUTBOUND_INTERCEPTOR_HANDLER, channelDependencies.getPublishOutboundInterceptorHandler());
+        ch.pipeline().addLast(PUBACK_INTERCEPTOR_HANDLER, channelDependencies.getPubackInterceptorHandler());
+        ch.pipeline().addLast(PUBREC_INTERCEPTOR_HANDLER, channelDependencies.getPubrecInterceptorHandler());
+        ch.pipeline().addLast(PUBREL_INTERCEPTOR_HANDLER, channelDependencies.getPubrelInterceptorHandler());
+        ch.pipeline().addLast(PUBCOMP_INTERCEPTOR_HANDLER, channelDependencies.getPubcompInterceptorHandler());
+        ch.pipeline().addLast(SUBACK_OUTBOUND_INTERCEPTOR_HANDLER, channelDependencies.getSubackOutboundInterceptorHandler());
+        ch.pipeline().addLast(UNSUBACK_OUTBOUND_INTERCEPTOR_HANDLER, channelDependencies.getUnsubackOutboundInterceptorHandler());
+        // after unsuback outbound interceptor as a unsubscribe can be rejected and then a unsuback is sent
+        ch.pipeline().addLast(UNSUBSCRIBE_INBOUND_INTERCEPTOR_HANDLER, channelDependencies.getUnsubscribeInboundInterceptorHandler());
+        ch.pipeline().addLast(DISCONNECT_INTERCEPTOR_HANDLER, channelDependencies.getDisconnectInterceptorHandler());
+
+        // after connect inbound interceptor as it intercepts the connect
+        ch.pipeline().addLast(CLIENT_LIFECYCLE_EVENT_HANDLER, channelDependencies.getClientLifecycleEventHandler());
+
+        ch.pipeline().addLast(MQTT_AUTH_HANDLER, channelDependencies.getAuthHandler());
 
         ch.pipeline().addLast(MQTT_MESSAGE_ID_RETURN_HANDLER, channelDependencies.getReturnMessageIdToPoolHandler());
 
@@ -107,11 +115,9 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
             ch.pipeline().addLast(DROP_OUTGOING_PUBLISHES_HANDLER, channelDependencies.getDropOutgoingPublishesHandler());
         }
 
-        ch.pipeline().addLast(PUBLISH_MESSAGE_EXPIRY_HANDLER, channelDependencies.getPublishMessageExpiryHandler());
+        ch.pipeline().addLast(MESSAGE_EXPIRY_HANDLER, channelDependencies.getPublishMessageExpiryHandler());
 
-        ch.pipeline().addLast(CONNACK_OUTBOUND_INTERCEPTOR_HANDLER, channelDependencies.getConnackOutboundInterceptorHandler());
         ch.pipeline().addLast(MQTT_CONNECT_HANDLER, channelDependencies.getConnectHandler());
-        ch.pipeline().addLast(MQTT_AUTH_HANDLER, channelDependencies.getAuthHandler());
 
         ch.pipeline().addLast(MQTT_CONNECT_PERSISTENCE_HANDLER, channelDependencies.getConnectPersistenceUpdateHandler());
         ch.pipeline().addLast(MQTT_DISCONNECT_HANDLER, channelDependencies.getDisconnectHandler());
@@ -146,18 +152,21 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
         if (timeoutMillis > 0) {
             final IdleStateHandler idleStateHandler = new IdleStateHandler(timeoutMillis, 0, 0, TimeUnit.MILLISECONDS);
 
-            ch.pipeline().addLast(NEW_CONNECTION_IDLE_HANDLER, idleStateHandler);
-            ch.pipeline().addLast(NO_CONNECT_IDLE_EVENT_HANDLER, new NoConnectIdleHandler(eventLog));
+            ch.pipeline().addAfter(MQTT_MESSAGE_ENCODER, NEW_CONNECTION_IDLE_HANDLER, idleStateHandler);
+            ch.pipeline()
+                    .addAfter(NEW_CONNECTION_IDLE_HANDLER, NO_CONNECT_IDLE_EVENT_HANDLER,
+                            channelDependencies.getNoConnectIdleHandler());
         }
     }
 
     protected abstract void addSpecialHandlers(@NotNull final Channel ch) throws Exception;
 
-
     @Override
     public void exceptionCaught(final ChannelHandlerContext ctx, @NotNull final Throwable cause) throws Exception {
         if (cause instanceof SslException) {
-            log.error("{}. Disconnecting client {} ", cause.getMessage(), ChannelUtils.getChannelIP(ctx.channel()).or("UNKNOWN"));
+            log.error(
+                    "{}. Disconnecting client {} ", cause.getMessage(),
+                    ChannelUtils.getChannelIP(ctx.channel()).or("UNKNOWN"));
             log.debug("Original exception:", cause);
             if (cause.getMessage() != null) {
                 eventLog.clientWasDisconnected(ctx.channel(), cause.getMessage());
@@ -172,6 +181,5 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
             super.exceptionCaught(ctx, cause);
         }
     }
-
 
 }

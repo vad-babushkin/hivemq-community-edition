@@ -19,8 +19,8 @@ package com.hivemq.persistence.local.xodus.clientsession;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.hivemq.annotations.NotNull;
-import com.hivemq.annotations.Nullable;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.bootstrap.ioc.lazysingleton.LazySingleton;
 import com.hivemq.configuration.service.InternalConfigurations;
 import com.hivemq.exceptions.UnrecoverableException;
@@ -63,7 +63,7 @@ public class ClientSessionSubscriptionXodusLocalPersistence extends XodusLocalPe
 
     private static final Logger log = LoggerFactory.getLogger(ClientSessionSubscriptionXodusLocalPersistence.class);
     private static final String PERSISTENCE_NAME = "client_session_subscriptions";
-    private static final String PERSISTENCE_VERSION = "040000";
+    public static final String PERSISTENCE_VERSION = "040000";
 
     @VisibleForTesting
     final @NotNull ClientSessionSubscriptionXodusSerializer serializer;
@@ -76,8 +76,7 @@ public class ClientSessionSubscriptionXodusLocalPersistence extends XodusLocalPe
             final @NotNull EnvironmentUtil environmentUtil,
             final @NotNull PersistenceStartup persistenceStartup) {
 
-        super(environmentUtil, localPersistenceFileUtil, persistenceStartup, InternalConfigurations.PERSISTENCE_BUCKET_COUNT.get());
-
+        super(environmentUtil, localPersistenceFileUtil, persistenceStartup, InternalConfigurations.PERSISTENCE_BUCKET_COUNT.get(), true);
         this.serializer = new ClientSessionSubscriptionXodusSerializer();
 
     }

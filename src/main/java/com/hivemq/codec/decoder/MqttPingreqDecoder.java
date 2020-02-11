@@ -17,7 +17,7 @@
 package com.hivemq.codec.decoder;
 
 import com.google.inject.Inject;
-import com.hivemq.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.bootstrap.ioc.lazysingleton.LazySingleton;
 import com.hivemq.logging.EventLog;
 import com.hivemq.mqtt.message.PINGREQ;
@@ -38,11 +38,10 @@ public class MqttPingreqDecoder extends MqttDecoder<PINGREQ> {
 
     private static final Logger log = LoggerFactory.getLogger(MqttPingreqDecoder.class);
 
-    private static final PINGREQ PINGREQ = new PINGREQ();
-    private final EventLog eventLog;
+    private final @NotNull EventLog eventLog;
 
     @Inject
-    public MqttPingreqDecoder(final EventLog eventLog) {
+    public MqttPingreqDecoder(final @NotNull EventLog eventLog) {
         this.eventLog = eventLog;
     }
 
@@ -64,6 +63,6 @@ public class MqttPingreqDecoder extends MqttDecoder<PINGREQ> {
             }
         }
 
-        return PINGREQ;
+        return PINGREQ.INSTANCE;
     }
 }

@@ -36,6 +36,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
@@ -44,7 +45,6 @@ public class DisconnectHandlerTest {
 
     private EmbeddedChannel embeddedChannel;
 
-    @Mock
     EventLog eventLog;
 
     @Mock
@@ -55,6 +55,8 @@ public class DisconnectHandlerTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        eventLog = spy(new EventLog());
 
         metricsHolder = new MetricsHolder(new MetricRegistry());
 
@@ -71,6 +73,30 @@ public class DisconnectHandlerTest {
         embeddedChannel.writeInbound(new DISCONNECT(Mqtt5DisconnectReasonCode.NORMAL_DISCONNECTION, null, Mqtt5UserProperties.NO_USER_PROPERTIES, null, 2000L));
 
         assertEquals(2000, embeddedChannel.attr(ChannelAttributes.CLIENT_SESSION_EXPIRY_INTERVAL).get().longValue());
+
+        //verify that the client was disconnected
+        assertFalse(embeddedChannel.isOpen());
+    }
+
+    @Test
+    public void test_disconnection_with_will() {
+        assertTrue(embeddedChannel.isOpen());
+
+        embeddedChannel.writeInbound(new DISCONNECT(Mqtt5DisconnectReasonCode.SERVER_SHUTTING_DOWN, null, Mqtt5UserProperties.NO_USER_PROPERTIES, null, 2000L));
+
+        assertEquals(true, embeddedChannel.attr(ChannelAttributes.SEND_WILL).get());
+
+        //verify that the client was disconnected
+        assertFalse(embeddedChannel.isOpen());
+    }
+
+    @Test
+    public void test_disconnection_without_will() {
+        assertTrue(embeddedChannel.isOpen());
+
+        embeddedChannel.writeInbound(new DISCONNECT(Mqtt5DisconnectReasonCode.NORMAL_DISCONNECTION, null, Mqtt5UserProperties.NO_USER_PROPERTIES, null, 2000L));
+
+        assertEquals(false, embeddedChannel.attr(ChannelAttributes.SEND_WILL).get());
 
         //verify that the client was disconnected
         assertFalse(embeddedChannel.isOpen());

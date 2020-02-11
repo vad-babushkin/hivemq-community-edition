@@ -9,10 +9,7 @@ plugins {
 
 allprojects {
     repositories {
-        mavenLocal()
         mavenCentral()
-        jcenter()
-        maven { url 'https://oss.sonatype.org/content/groups/public' } // for snapshot artifacts
     }
 }
 
@@ -47,7 +44,7 @@ allprojects {
     group 'com.hivemq'
 }
 
-version = '2019.2-SNAPSHOT'
+version = '2020.2'
 
 mainClassName = 'com.hivemq.HiveMQServer'
 
@@ -56,7 +53,7 @@ project.ext {
     // Project Dependency Versions
     bouncycastlesVersion = '1.60'
     jacksonVersion = '2.9.8'
-    nettyVersion = '4.1.38.Final'
+    nettyVersion = '4.1.45.Final'
     xodusVersion = '1.2.3'
     guiceVersion = '4.2.2'
     metricsVersion = '4.0.3'
@@ -110,6 +107,9 @@ dependencies {
             /* jackson */
             [group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: jacksonVersion],
             [group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: jacksonVersion],
+
+            /* rocksdb */
+            [group: 'org.rocksdb', name: 'rocksdbjni', version: '6.5.2'],
 
             /* apache commons */
             [group: 'commons-io', name: 'commons-io', version: '2.6'],
@@ -366,7 +366,6 @@ task copyPackaging(type: Copy) {
 
     doLast {
         new File("${project.packagingProjectDir}/data").mkdirs()
-        new File("${project.packagingProjectDir}/extensions").mkdirs()
         new File("${project.packagingProjectDir}/log").mkdirs()
     }
 }
@@ -476,7 +475,9 @@ downloadLicenses {
 allprojects {
     license {
         header file("${rootDir}/HEADER")
-        exclude '*'
+        mapping {
+            java = 'SLASHSTAR_STYLE'
+        }
     }
 }
 

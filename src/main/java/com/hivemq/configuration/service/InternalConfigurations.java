@@ -16,9 +16,12 @@
 
 package com.hivemq.configuration.service;
 
+import com.hivemq.migration.meta.PersistenceType;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.hivemq.persistence.local.xodus.EnvironmentUtil.GCType;
 
@@ -99,6 +102,9 @@ public class InternalConfigurations {
     public static final int XODUS_PERSISTENCE_ENVIRONMENT_SYNC_PERIOD = 1000;
     // The configuration for xodus persistence environment durable writes
     public static final boolean XODUS_PERSISTENCE_ENVIRONMENT_DURABLE_WRITES = false;
+    // The the memory limit used by the xodus environments in percentage of the JVM heap (Xmx).
+    public static final int XODUS_PERSISTENCE_LOG_MEMORY_PERCENTAGE = 25;
+
 
 
     // The amount of publishes that are polled per batch
@@ -109,6 +115,18 @@ public class InternalConfigurations {
 
     // The amount of qos > 0 retained messages that are queued
     public static final AtomicInteger RETAINED_MESSAGE_QUEUE_SIZE = new AtomicInteger(100_000);
+
+    //The configuration if rocks db is used instead of xodus for retained messages.
+    public static final AtomicReference<PersistenceType> RETAINED_MESSAGE_PERSISTENCE_TYPE = new AtomicReference<>(PersistenceType.FILE_NATIVE);
+
+    //The memory that is used for rocksdb memtable as a portion of the RAM for the retained message persistence. (size = RAM/configValue)
+    public static final int RETAINED_MESSAGE_MEMTABLE_SIZE_PORTION = 32;
+
+    //The memory that is used for rocksdb block-cache as a portion of the RAM for the retained message persistence. (size = RAM/configValue)
+    public static final int RETAINED_MESSAGE_BLOCK_CACHE_SIZE_PORTION = 64;
+
+    //The block size used by rocksdb for the retained message persistence in bytes
+    public static final int RETAINED_MESSAGE_BLOCK_SIZE = 32 * 1024;
 
     /* ************************
      *   Payload Persistence  *
@@ -128,6 +146,9 @@ public class InternalConfigurations {
     public static final AtomicInteger PAYLOAD_PERSISTENCE_CLEANUP_THREADS = new AtomicInteger(AVAILABLE_PROCESSORS_TIMES_TWO);
     // The bucket count for the payload persistence.
     public static final AtomicInteger PAYLOAD_PERSISTENCE_BUCKET_COUNT = new AtomicInteger(64);
+
+    //The configuration if rocks db is used instead of xodus for payload persistence.
+    public static final AtomicReference<PersistenceType> PAYLOAD_PERSISTENCE_TYPE = new AtomicReference<>(PersistenceType.FILE_NATIVE);
 
     // In case we tried to decrement a reference count that was already zero, a stacktrace will be logged to warn, if this flag is true (default is debug)
     public static final boolean LOG_REFERENCE_COUNTING_STACKTRACE_AS_WARNING = false;
@@ -171,6 +192,15 @@ public class InternalConfigurations {
      */
     public static final int SHARED_SUBSCRIPTION_CACHE_SIZE = 10000;
 
+    //The memory that is used for rocksdb memtable as a portion of the RAM for the retained message persistence. (size = RAM/configValue)
+    public static final int PAYLOAD_PERSISTENCE_MEMTABLE_SIZE_PORTION = 32;
+
+    //The memory that is used for rocksdb block-cache as a portion of the RAM for the retained message persistence. (size = RAM/configValue)
+    public static final int PAYLOAD_PERSISTENCE_BLOCK_CACHE_SIZE_PORTION = 64;
+
+    //The block size used by rocksdb for the retained message persistence in bytes
+    public static final int PAYLOAD_PERSISTENCE_BLOCK_SIZE = 32 * 1024;
+
 
     /**
      * The live time of a entry in the shared subscriber cache in milliseconds
@@ -208,6 +238,16 @@ public class InternalConfigurations {
      * the outgoing bandwidth throttling config in bytes per second.
      */
     public static final int OUTGOING_BANDWIDTH_THROTTLING_DEFAULT = 0; // unlimited
+
+    /**
+     * publishes are removed after the message expiry even if they are already in-flight.
+     */
+    public static boolean EXPIRE_INFLIGHT_MESSAGES = false;
+
+    /**
+     *  pubrels are removed after the message expiry.
+     */
+    public static boolean EXPIRE_INFLIGHT_PUBRELS = false;
 
 
     /* *****************
@@ -322,6 +362,11 @@ public class InternalConfigurations {
     /**
      * Denies the bypassing of authentication if no authenticator is registered
      */
-    public static final boolean AUTH_DENY_UNAUTHENTICATED_CONNECTIONS = false;
+    public static final AtomicBoolean AUTH_DENY_UNAUTHENTICATED_CONNECTIONS = new AtomicBoolean(true);
+
+    /**
+     * The timeout in seconds between two auth steps
+     */
+    public static final AtomicInteger AUTH_PROCESS_TIMEOUT = new AtomicInteger(30);
 
 }

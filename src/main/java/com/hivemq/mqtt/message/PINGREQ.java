@@ -16,7 +16,7 @@
 
 package com.hivemq.mqtt.message;
 
-import com.hivemq.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
 
 /**
  * The MQTT PINGREQ message
@@ -25,6 +25,8 @@ import com.hivemq.annotations.NotNull;
  * @since 1.4
  */
 public class PINGREQ implements Message {
+
+    public static final PINGREQ INSTANCE = new PINGREQ();
 
     @NotNull
     @Override

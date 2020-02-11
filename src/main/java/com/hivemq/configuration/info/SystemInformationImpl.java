@@ -18,8 +18,8 @@ package com.hivemq.configuration.info;
 
 import com.google.common.io.Files;
 import com.hivemq.HiveMQServer;
-import com.hivemq.annotations.NotNull;
-import com.hivemq.annotations.Nullable;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.configuration.EnvironmentVariables;
 import com.hivemq.configuration.SystemProperties;
 import com.hivemq.util.ManifestUtils;
@@ -38,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 public class SystemInformationImpl implements SystemInformation {
 
     private static final Logger log = LoggerFactory.getLogger(SystemInformationImpl.class);
+    public static final String DEVELOPMENT_VERSION = "Development Snapshot";
 
     private File homeFolder;
     private File configFolder;
@@ -100,7 +101,7 @@ public class SystemInformationImpl implements SystemInformation {
         hivemqVersion = ManifestUtils.getValueFromManifest(HiveMQServer.class, "HiveMQ-Version");
 
         if (hivemqVersion == null || hivemqVersion.length() < 1) {
-            hivemqVersion = "Development Snapshot";
+            hivemqVersion = DEVELOPMENT_VERSION;
         }
 
         log.info("HiveMQ version: {}", hivemqVersion);
@@ -200,11 +201,7 @@ public class SystemInformationImpl implements SystemInformation {
         }
 
         final String environmentVariable = System.getenv().get(variableName);
-        if (environmentVariable != null) {
-            return environmentVariable;
-        }
-
-        return null;
+        return environmentVariable;
     }
 
     private void setHomeFolder() {

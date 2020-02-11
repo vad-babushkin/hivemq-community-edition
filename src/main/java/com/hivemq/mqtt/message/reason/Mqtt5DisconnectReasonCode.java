@@ -16,10 +16,12 @@
 
 package com.hivemq.mqtt.message.reason;
 
-import com.hivemq.annotations.NotNull;
-import com.hivemq.annotations.Nullable;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.packets.disconnect.DisconnectReasonCode;
 import com.hivemq.extension.sdk.api.packets.general.DisconnectedReasonCode;
+
+import java.util.EnumSet;
 
 /**
  * MQTT Reason Codes that can be used in DISCONNECT packets according to the MQTT 5 specification.
@@ -60,33 +62,49 @@ public enum Mqtt5DisconnectReasonCode implements Mqtt5ReasonCode {
     WILDCARD_SUBSCRIPTION_NOT_SUPPORTED(MqttCommonReasonCode.WILDCARD_SUBSCRIPTION_NOT_SUPPORTED);
 
     private final int code;
+    private final @NotNull DisconnectReasonCode disconnectReasonCode;
+    private final @NotNull DisconnectedReasonCode disconnectedReasonCode;
 
     Mqtt5DisconnectReasonCode(final int code) {
         this.code = code;
+        disconnectReasonCode = DisconnectReasonCode.valueOf(name());
+        disconnectedReasonCode = DisconnectedReasonCode.valueOf(name());
     }
 
-    Mqtt5DisconnectReasonCode(@NotNull final MqttCommonReasonCode reasonCode) {
+    Mqtt5DisconnectReasonCode(final @NotNull MqttCommonReasonCode reasonCode) {
         this(reasonCode.getCode());
     }
 
-    /**
-     * @return the byte code of this DISCONNECT Reason Code.
-     */
+    @Override
     public int getCode() {
         return code;
     }
 
+    public @NotNull DisconnectReasonCode toDisconnectReasonCode() {
+        return disconnectReasonCode;
+    }
+
+    public @NotNull DisconnectedReasonCode toDisconnectedReasonCode() {
+        return disconnectedReasonCode;
+    }
 
     private static final int ERROR_CODE_MIN = UNSPECIFIED_ERROR.code;
     private static final int ERROR_CODE_MAX = WILDCARD_SUBSCRIPTION_NOT_SUPPORTED.code;
-    private static final Mqtt5DisconnectReasonCode[] ERROR_CODE_LOOKUP =
+    private static final @NotNull Mqtt5DisconnectReasonCode[] ERROR_CODE_LOOKUP =
             new Mqtt5DisconnectReasonCode[ERROR_CODE_MAX - ERROR_CODE_MIN + 1];
+
+    private static final @NotNull Mqtt5DisconnectReasonCode @NotNull [] DISCONNECT_LOOKUP =
+            new Mqtt5DisconnectReasonCode[DisconnectReasonCode.values().length];
+    private static final @Nullable Mqtt5DisconnectReasonCode @NotNull [] DISCONNECTED_LOOKUP =
+            new Mqtt5DisconnectReasonCode[DisconnectedReasonCode.values().length];
 
     static {
         for (final Mqtt5DisconnectReasonCode reasonCode : values()) {
             if (reasonCode != NORMAL_DISCONNECTION && reasonCode != DISCONNECT_WITH_WILL_MESSAGE) {
                 ERROR_CODE_LOOKUP[reasonCode.code - ERROR_CODE_MIN] = reasonCode;
             }
+            DISCONNECT_LOOKUP[reasonCode.disconnectReasonCode.ordinal()] = reasonCode;
+            DISCONNECTED_LOOKUP[reasonCode.disconnectedReasonCode.ordinal()] = reasonCode;
         }
     }
 
@@ -94,11 +112,10 @@ public enum Mqtt5DisconnectReasonCode implements Mqtt5ReasonCode {
      * Returns the DISCONNECT Reason Code belonging to the given byte code.
      *
      * @param code the byte code.
-     * @return the DISCONNECT Reason Code belonging to the given byte code or null if the byte code is not a valid
-     * DISCONNECT Reason Code code.
+     * @return the DISCONNECT Reason Code belonging to the given byte code or <code>null</code> if the byte code is not
+     * a valid DISCONNECT Reason Code.
      */
-    @Nullable
-    public static Mqtt5DisconnectReasonCode fromCode(final int code) {
+    public static @Nullable Mqtt5DisconnectReasonCode fromCode(final int code) {
         if (code == NORMAL_DISCONNECTION.code) {
             return NORMAL_DISCONNECTION;
         }
@@ -111,28 +128,27 @@ public enum Mqtt5DisconnectReasonCode implements Mqtt5ReasonCode {
         return ERROR_CODE_LOOKUP[code - ERROR_CODE_MIN];
     }
 
-    /**
-     * Returns the DISCONNECT Reason Code belonging to the given byte code.
-     *
-     * @param code the byte code.
-     * @return the DISCONNECT Reason Code belonging to the given byte code or null if the byte code is not a valid
-     * DISCONNECT Reason Code code.
-     */
-    @NotNull
-    public static DisconnectReasonCode toPluginCode(final @NotNull Mqtt5DisconnectReasonCode code) {
-        return DisconnectReasonCode.valueOf(code.name());
+    public static @NotNull Mqtt5DisconnectReasonCode from(final @NotNull DisconnectReasonCode reasonCode) {
+        return DISCONNECT_LOOKUP[reasonCode.ordinal()];
     }
 
-    /**
-     * Returns the DISCONNECT Reason Code belonging to the given byte code.
-     *
-     * @param code the byte code.
-     * @return the DISCONNECT Reason Code belonging to the given byte code or null if the byte code is not a valid
-     * DISCONNECT Reason Code code.
-     */
-    @NotNull
-    public static DisconnectedReasonCode toPluginDisconnectedCode(final @NotNull Mqtt5DisconnectReasonCode code) {
-        return DisconnectedReasonCode.valueOf(code.name());
+    public static @Nullable Mqtt5DisconnectReasonCode from(final @NotNull DisconnectedReasonCode reasonCode) {
+        return DISCONNECTED_LOOKUP[reasonCode.ordinal()];
     }
 
+    private static final @NotNull EnumSet<Mqtt5DisconnectReasonCode> BY_CLIENT =
+            EnumSet.of(NORMAL_DISCONNECTION, DISCONNECT_WITH_WILL_MESSAGE, UNSPECIFIED_ERROR, PROTOCOL_ERROR,
+                    IMPLEMENTATION_SPECIFIC_ERROR, TOPIC_FILTER_INVALID, TOPIC_NAME_INVALID, RECEIVE_MAXIMUM_EXCEEDED,
+                    TOPIC_ALIAS_INVALID, PACKET_TOO_LARGE, MESSAGE_RATE_TOO_HIGH, QUOTA_EXCEEDED,
+                    ADMINISTRATIVE_ACTION);
+
+    @Override
+    public boolean canBeSentByServer() {
+        return this != DISCONNECT_WITH_WILL_MESSAGE;
+    }
+
+    @Override
+    public boolean canBeSentByClient() {
+        return BY_CLIENT.contains(this);
+    }
 }

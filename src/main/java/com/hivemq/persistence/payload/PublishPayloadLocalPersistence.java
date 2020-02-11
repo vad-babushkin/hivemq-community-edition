@@ -17,14 +17,21 @@
 package com.hivemq.persistence.payload;
 
 import com.google.common.collect.ImmutableList;
-import com.hivemq.annotations.NotNull;
-import com.hivemq.annotations.Nullable;
+import com.hivemq.extension.sdk.api.annotations.NotNull;
+import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.annotations.ReadOnly;
 
 /**
  * @author Lukas Brandl
  */
 public interface PublishPayloadLocalPersistence {
+
+    String PERSISTENCE_NAME = "publish_payload_store";
+
+    /**
+     * initialize the publish payload local persistence to set the next payload id.
+     */
+    void init();
 
     /**
      * Put a payload for a specific id.
@@ -66,4 +73,15 @@ public interface PublishPayloadLocalPersistence {
      * close the persistence with all buckets.
      */
     void closeDB();
+
+    /**
+     * iterate over all entries.
+     * @param callback the callback called at every iteration.
+     */
+    void iterate(final @NotNull Callback callback);
+
+    @FunctionalInterface
+    interface Callback {
+        void call(long id, @Nullable byte[] payload);
+    }
 }
